@@ -4,169 +4,271 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Minha IA</title>
+    <title>Duster-X</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f2f2f2;
+            color: #111;
         }
 
-        .topo {
+        header {
             background: #222;
             color: white;
-            padding: 20px;
             text-align: center;
+            padding: 35px 20px;
         }
 
-        .topo h1 {
+        header h1 {
             margin: 0;
+            font-size: 30px;
         }
 
-        .chat {
-            max-width: 800px;
+        header p {
+            margin: 8px 0 0;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 700px;
             margin: 30px auto;
             background: white;
+            padding: 18px;
             border-radius: 12px;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        #resposta {
-            min-height: 300px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            white-space: pre-wrap;
-            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
         }
 
         textarea {
             width: 100%;
-            height: 100px;
-            box-sizing: border-box;
+            resize: vertical;
+            min-height: 90px;
             padding: 12px;
-            font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            resize: vertical;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            margin-bottom: 12px;
+        }
+
+        #resposta {
+            width: 100%;
+            min-height: 250px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
         }
 
         button {
-            margin-top: 10px;
             width: 100%;
-            padding: 14px;
+            border: none;
             background: #222;
             color: white;
-            border: none;
-            border-radius: 8px;
+            padding: 13px;
+            border-radius: 7px;
             font-size: 16px;
             cursor: pointer;
+            margin-bottom: 10px;
         }
 
         button:hover {
-            background: #444;
+            background: #333;
+        }
+
+        button:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 13px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="topo">
-        <h1>duster-x</h1>
-        <p>Faça sua pergunta</p>
+<header>
+    <h1>duster-x</h1>
+    <p>Faça sua pergunta</p>
+</header>
+
+<div class="container">
+
+    <div id="resposta">
+        Olá! Eu sou o Duster-X. Faça uma pergunta para começar.
     </div>
 
-    <div class="chat">
+    <textarea
+        id="pergunta"
+        placeholder="Digite sua pergunta..."
+    ></textarea>
 
-        <div id="resposta">
-            A resposta da IA aparecerá aqui.
-        </div>
+    <button id="falar">
+        🎤 Falar
+    </button>
 
-        <textarea id="pergunta" placeholder="Digite sua pergunta..."></textarea>
-<button type="button" onclick="ouvir()">🎤 Falar</button>
-        <button onclick="perguntar()">Perguntar</button>
+    <button id="perguntar">
+        Perguntar
+    </button>
 
-    </div>
+</div>
 
-    <script>
-        async function perguntar() {
+<footer>
+    Duster-X • Criado por Lucas Benjamin
+</footer>
 
-            const pergunta = document.getElementById("pergunta").value;
-            const resposta = document.getElementById("resposta");
+<script>
 
-            if (pergunta.trim() === "") {
-                resposta.innerText = "Digite uma pergunta primeiro.";
-                return;
+    // Endereço público do servidor do Duster-X
+    const API_URL = "https://duster-x.lucasaasn.workers.dev";
+
+    const perguntaInput = document.getElementById("pergunta");
+    const respostaDiv = document.getElementById("resposta");
+    const perguntarButton = document.getElementById("perguntar");
+    const falarButton = document.getElementById("falar");
+
+
+    async function perguntar() {
+
+        const pergunta = perguntaInput.value.trim();
+
+        if (!pergunta) {
+            respostaDiv.textContent = "Digite uma pergunta primeiro.";
+            return;
+        }
+
+        perguntarButton.disabled = true;
+        respostaDiv.textContent = "Pensando...";
+
+        try {
+
+            const response = await fetch(API_URL, {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    pergunta: pergunta
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.erro || "Erro ao conectar com o servidor."
+                );
             }
 
-            resposta.innerText = "Pensando...";
+            respostaDiv.textContent =
+                data.resposta ||
+                "A IA não retornou uma resposta.";
 
-            try {
+        } catch (erro) {
 
-                const resultado = await fetch("/perguntar", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        pergunta: pergunta
-                    })
-                });
+            console.error(erro);
 
-                const dados = await resultado.json();
+            respostaDiv.textContent =
+                "Não consegui conectar com a IA.\n\n" +
+                "Erro: " + erro.message;
 
-                resposta.innerText = dados.resposta;
+        } finally {
 
-            } catch (erro) {
+            perguntarButton.disabled = false;
 
-                resposta.innerText =
-                    "Não consegui conectar com a IA. Verifique se o programa está funcionando.";
+        }
+    }
 
-            }
-        }function ouvir() {
 
-    const pergunta = document.getElementById("pergunta");
+    perguntarButton.addEventListener("click", perguntar);
 
-    const Reconhecimento =
+
+    perguntaInput.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter" && !event.shiftKey) {
+
+            event.preventDefault();
+
+            perguntar();
+        }
+    });
+
+
+    // Reconhecimento de voz
+    const SpeechRecognition =
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
-    if (!Reconhecimento) {
-        alert("Seu navegador não suporta reconhecimento de voz.");
-        return;
+
+    if (SpeechRecognition) {
+
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = "pt-BR";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+
+        falarButton.addEventListener("click", function() {
+
+            recognition.start();
+
+        });
+
+
+        recognition.onstart = function() {
+
+            falarButton.textContent = "🎤 Ouvindo...";
+
+        };
+
+
+        recognition.onresult = function(event) {
+
+            const texto =
+                event.results[0][0].transcript;
+
+            perguntaInput.value = texto;
+
+        };
+
+
+        recognition.onend = function() {
+
+            falarButton.textContent = "🎤 Falar";
+
+        };
+
+
+        recognition.onerror = function() {
+
+            falarButton.textContent = "🎤 Falar";
+
+        };
+
+    } else {
+
+        falarButton.disabled = true;
+        falarButton.textContent =
+            "🎤 Voz não suportada neste navegador";
+
     }
 
-    const reconhecimento = new Reconhecimento();
-
-    reconhecimento.lang = "pt-BR";
-    reconhecimento.continuous = false;
-    reconhecimento.interimResults = false;
-
-    reconhecimento.onstart = function() {
-        pergunta.placeholder = "Estou ouvindo...";
-    };
-
-    reconhecimento.onresult = function(event) {
-
-        const texto = event.results[0][0].transcript;
-
-        pergunta.value = texto;
-    };
-
-    reconhecimento.onerror = function() {
-        pergunta.placeholder = "Não consegui ouvir. Tente novamente.";
-    };
-
-    reconhecimento.onend = function() {
-        pergunta.placeholder = "Digite sua pergunta...";
-    };
-
-    reconhecimento.start();
-}
-    </script>
+</script>
 
 </body>
 </html>
