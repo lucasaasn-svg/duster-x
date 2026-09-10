@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Duster-X</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+
+        .topo {
+            background: #222;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .topo h1 {
+            margin: 0;
+        }
+
+        .chat {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #resposta {
+            min-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            box-sizing: border-box;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 14px;
+            background: #222;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topo">
+        <h1>Duster-X</h1>
+        <p>Faça sua pergunta</p>
+    </div>
+
+    <div class="chat">
+
+        <div id="resposta">
+            A resposta da IA aparecerá aqui.
+        </div>
+
+        <textarea id="pergunta" placeholder="Digite sua pergunta..."></textarea>
+
+        <input type="file" id="imagem" accept="image/*" capture="environment"
+               style="display:none" onchange="mostrarImagem()">
+
+        <div id="preview" style="display:none; margin-top:10px;">
+            <img id="imagemPreview" alt="Imagem selecionada"
+                 style="max-width:100%; max-height:300px; border-radius:8px; display:block; margin:auto;">
+            <button type="button" onclick="removerImagem()" style="margin-top:8px; background:#777;">
+                Remover imagem
+            </button>
+        </div>
+
+        <button type="button" onclick="abrirImagem()">📷 Tirar/Escolher foto</button>
+        <button type="button" onclick="ouvir()">🎤 Falar</button>
+        <button type="button" onclick="perguntar()">Perguntar</button>
+
+    </div>
+
+    <script>
+        const API_URL = "https://duster-x.lucasaasn.workers.dev";
+        let imagemBase64 = null;
+        let imagemMimeType = null;
+
+        function abrirImagem() {
+            document.getElementById("imagem").click();
+        }
+
+        function mostrarImagem() {
+            const arquivo = document.getElementById("imagem").files[0];
+            const preview = document.getElementById("preview");
+            const imagemPreview = document.getElementById("imagemPreview");
+
+            if (!arquivo) {
+                removerImagem();
+                return;
+            }
+
+            if (!arquivo.type.startsWith("image/")) {
+                alert("Escolha uma imagem.");
+                removerImagem();
+                return;
+            }
+
+            imagemMimeType = arquivo.type;
+            const leitor = new FileReader();
+
+            leitor.onload = function(event) {
+                imagemBase64 = event.target.result.split(",")[1];
+                imagemPreview.src = event.target.result;
+                preview.style.display = "block";
+            };
+
+            leitor.onerror = function() {
+                alert("Não consegui carregar a imagem.");
+                removerImagem();
+            };
+
+            leitor.readAsDataURL(arquivo);
+        }
+
+        function removerImagem() {
+            imagemBase64 = null;
+            imagemMimeType = null;
+            document.getElementById("imagem").value = "";
+            document.getElementById("imagemPreview").src = "";
+            document.getElementById("preview").style.display = "none";
+        }
+
+        async function perguntar() {
+            const pergunta = document.getElementById("pergunta").value.trim();
+            const resposta = document.getElementById("resposta");
+
+            if (pergunta === "" && !imagemBase64) {
+                resposta.innerText = "Digite uma pergunta ou escolha uma imagem primeiro.";
+                return;
+            }
+
+            resposta.innerText = imagemBase64 ? "Analisando a imagem..." : "Pensando...";
+
+            try {
+                const resultado = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        pergunta: pergunta,
+                        imagem: imagemBase64,
+                        mimeType: imagemMimeType
+                    })
+                });
+
+                const textoResposta = await resultado.text();
+                let dados;
+
+                try {
+                    dados = JSON.parse(textoResposta);
+                } catch (erro) {
+                    dados = {
+                        erro: textoResposta || "O servidor não retornou uma resposta válida."
+                    };
+                }
+
+                if (!resultado.ok) {
+                    resposta.innerText = dados.erro || "O servidor encontrou um erro.";
+                    return;
+                }
+
+                resposta.innerText =
+                    dados.resposta || dados.erro || "A IA não retornou uma resposta.";
+
+            } catch (erro) {
+                resposta.innerText =
+                    "Não consegui conectar com a IA. Verifique sua conexão com a internet.";
+            }
+        }
+
+        function ouvir() {
+            const pergunta = document.getElementById("pergunta");
+
+            const Reconhecimento =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+            if (!Reconhecimento) {
+                alert("Seu navegador não suporta reconhecimento de voz.");
+                return;
+            }
+
+            const reconhecimento = new Reconhecimento();
+            reconhecimento.lang = "pt-BR";
+            reconhecimento.continuous = false;
+            reconhecimento.interimResults = false;
+
+            reconhecimento.onstart = function() {
+                pergunta.placeholder = "Estou ouvindo...";
+            };
+
+            reconhecimento.onresult = function(event) {
+                pergunta.value = event.results[0][0].transcript;
+            };
+
+            reconhecimento.onerror = function() {
+                pergunta.placeholder = "Não consegui ouvir. Tente novamente.";
+            };
+
+            reconhecimento.onend = function() {
+                pergunta.placeholder = "Digite sua pergunta...";
+            };
+
+            reconhecimento.start();
+        }
+    </script>
+
+</body>
+</html>
