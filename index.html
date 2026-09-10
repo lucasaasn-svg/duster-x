@@ -303,8 +303,17 @@
                 });
 
 
-                const dados = await resposta.json();
+                const textoResposta = await resposta.text();
 
+let dados;
+
+try {
+    dados = JSON.parse(textoResposta);
+} catch (erro) {
+    dados = {
+        erro: textoResposta || "O servidor não retornou uma resposta válida."
+    };
+}
 
                 digitando.remove();
 
