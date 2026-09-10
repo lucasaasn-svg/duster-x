@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Duster-X</title>
+    <title>Minha IA</title>
 
     <style>
         body {
@@ -75,7 +75,7 @@
 <body>
 
     <div class="topo">
-        <h1>Duster-X</h1>
+        <h1>duster-x</h1>
         <p>Faça sua pergunta</p>
     </div>
 
@@ -86,158 +86,86 @@
         </div>
 
         <textarea id="pergunta" placeholder="Digite sua pergunta..."></textarea>
-
-        <input type="file" id="imagem" accept="image/*" capture="environment"
-               style="display:none" onchange="mostrarImagem()">
-
-        <div id="preview" style="display:none; margin-top:10px;">
-            <img id="imagemPreview" alt="Imagem selecionada"
-                 style="max-width:100%; max-height:300px; border-radius:8px; display:block; margin:auto;">
-            <button type="button" onclick="removerImagem()" style="margin-top:8px; background:#777;">
-                Remover imagem
-            </button>
-        </div>
-
-        <button type="button" onclick="abrirImagem()">📷 Tirar/Escolher foto</button>
-        <button type="button" onclick="ouvir()">🎤 Falar</button>
-        <button type="button" onclick="perguntar()">Perguntar</button>
+<button type="button" onclick="ouvir()">🎤 Falar</button>
+        <button onclick="perguntar()">Perguntar</button>
 
     </div>
 
     <script>
-        const API_URL = "https://duster-x.lucasaasn.workers.dev";
-        let imagemBase64 = null;
-        let imagemMimeType = null;
-
-        function abrirImagem() {
-            document.getElementById("imagem").click();
-        }
-
-        function mostrarImagem() {
-            const arquivo = document.getElementById("imagem").files[0];
-            const preview = document.getElementById("preview");
-            const imagemPreview = document.getElementById("imagemPreview");
-
-            if (!arquivo) {
-                removerImagem();
-                return;
-            }
-
-            if (!arquivo.type.startsWith("image/")) {
-                alert("Escolha uma imagem.");
-                removerImagem();
-                return;
-            }
-
-            imagemMimeType = arquivo.type;
-            const leitor = new FileReader();
-
-            leitor.onload = function(event) {
-                imagemBase64 = event.target.result.split(",")[1];
-                imagemPreview.src = event.target.result;
-                preview.style.display = "block";
-            };
-
-            leitor.onerror = function() {
-                alert("Não consegui carregar a imagem.");
-                removerImagem();
-            };
-
-            leitor.readAsDataURL(arquivo);
-        }
-
-        function removerImagem() {
-            imagemBase64 = null;
-            imagemMimeType = null;
-            document.getElementById("imagem").value = "";
-            document.getElementById("imagemPreview").src = "";
-            document.getElementById("preview").style.display = "none";
-        }
-
         async function perguntar() {
-            const pergunta = document.getElementById("pergunta").value.trim();
+
+            const pergunta = document.getElementById("pergunta").value;
             const resposta = document.getElementById("resposta");
 
-            if (pergunta === "" && !imagemBase64) {
-                resposta.innerText = "Digite uma pergunta ou escolha uma imagem primeiro.";
+            if (pergunta.trim() === "") {
+                resposta.innerText = "Digite uma pergunta primeiro.";
                 return;
             }
 
-            resposta.innerText = imagemBase64 ? "Analisando a imagem..." : "Pensando...";
+            resposta.innerText = "Pensando...";
 
             try {
-                const resultado = await fetch(API_URL, {
+
+                const resultado = await fetch("/perguntar", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        pergunta: pergunta,
-                        imagem: imagemBase64,
-                        mimeType: imagemMimeType
+                        pergunta: pergunta
                     })
                 });
 
-                const textoResposta = await resultado.text();
-                let dados;
+                const dados = await resultado.json();
 
-                try {
-                    dados = JSON.parse(textoResposta);
-                } catch (erro) {
-                    dados = {
-                        erro: textoResposta || "O servidor não retornou uma resposta válida."
-                    };
-                }
-
-                if (!resultado.ok) {
-                    resposta.innerText = dados.erro || "O servidor encontrou um erro.";
-                    return;
-                }
-
-                resposta.innerText =
-                    dados.resposta || dados.erro || "A IA não retornou uma resposta.";
+                resposta.innerText = dados.resposta;
 
             } catch (erro) {
+
                 resposta.innerText =
-                    "Não consegui conectar com a IA. Verifique sua conexão com a internet.";
+                    "Não consegui conectar com a IA. Verifique se o programa está funcionando.";
+
             }
-        }
+        }function ouvir() {
 
-        function ouvir() {
-            const pergunta = document.getElementById("pergunta");
+    const pergunta = document.getElementById("pergunta");
 
-            const Reconhecimento =
-                window.SpeechRecognition ||
-                window.webkitSpeechRecognition;
+    const Reconhecimento =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
-            if (!Reconhecimento) {
-                alert("Seu navegador não suporta reconhecimento de voz.");
-                return;
-            }
+    if (!Reconhecimento) {
+        alert("Seu navegador não suporta reconhecimento de voz.");
+        return;
+    }
 
-            const reconhecimento = new Reconhecimento();
-            reconhecimento.lang = "pt-BR";
-            reconhecimento.continuous = false;
-            reconhecimento.interimResults = false;
+    const reconhecimento = new Reconhecimento();
 
-            reconhecimento.onstart = function() {
-                pergunta.placeholder = "Estou ouvindo...";
-            };
+    reconhecimento.lang = "pt-BR";
+    reconhecimento.continuous = false;
+    reconhecimento.interimResults = false;
 
-            reconhecimento.onresult = function(event) {
-                pergunta.value = event.results[0][0].transcript;
-            };
+    reconhecimento.onstart = function() {
+        pergunta.placeholder = "Estou ouvindo...";
+    };
 
-            reconhecimento.onerror = function() {
-                pergunta.placeholder = "Não consegui ouvir. Tente novamente.";
-            };
+    reconhecimento.onresult = function(event) {
 
-            reconhecimento.onend = function() {
-                pergunta.placeholder = "Digite sua pergunta...";
-            };
+        const texto = event.results[0][0].transcript;
 
-            reconhecimento.start();
-        }
+        pergunta.value = texto;
+    };
+
+    reconhecimento.onerror = function() {
+        pergunta.placeholder = "Não consegui ouvir. Tente novamente.";
+    };
+
+    reconhecimento.onend = function() {
+        pergunta.placeholder = "Digite sua pergunta...";
+    };
+
+    reconhecimento.start();
+}
     </script>
 
 </body>
