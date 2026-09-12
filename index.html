@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Duster-X</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -25,15 +22,8 @@
             padding: 35px 20px;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 30px;
-        }
-
-        header p {
-            margin: 8px 0 0;
-            font-size: 16px;
-        }
+        header h1 { margin: 0; font-size: 30px; }
+        header p { margin: 8px 0 0; font-size: 16px; }
 
         .container {
             max-width: 700px;
@@ -58,7 +48,7 @@
 
         #resposta {
             width: 100%;
-            min-height: 250px;
+            min-height: 180px;
             padding: 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
@@ -79,13 +69,73 @@
             margin-bottom: 10px;
         }
 
-        button:hover {
-            background: #333;
+        button:hover { background: #333; }
+        button:disabled { background: #888; cursor: not-allowed; }
+
+        .foto-area {
+            margin: 10px 0 14px;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fafafa;
         }
 
-        button:disabled {
-            background: #888;
-            cursor: not-allowed;
+        .foto-area h3 { margin: 0 0 10px; }
+
+        .botoes-foto {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .botoes-foto button { margin-bottom: 0; }
+
+        #imagemInput { display: none; }
+
+        #previewContainer {
+            display: none;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        #previewImagem {
+            max-width: 100%;
+            max-height: 320px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .remover-foto {
+            background: #8b0000;
+            margin-top: 8px;
+        }
+
+        .remover-foto:hover { background: #a00000; }
+
+        #imagemGeradaContainer {
+            display: none;
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        #imagemGeradaContainer h3 { margin-top: 0; }
+
+        #imagemGerada {
+            display: block;
+            width: 100%;
+            max-height: 650px;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        .baixar {
+            margin-top: 10px;
+            background: #444;
         }
 
         .criador-btn {
@@ -93,9 +143,7 @@
             margin-top: 5px;
         }
 
-        .criador-btn:hover {
-            background: #444;
-        }
+        .criador-btn:hover { background: #444; }
 
         .painel {
             display: none;
@@ -106,9 +154,7 @@
             background: #fafafa;
         }
 
-        .painel h2 {
-            margin-top: 0;
-        }
+        .painel h2 { margin-top: 0; }
 
         .painel-item {
             padding: 12px;
@@ -118,25 +164,12 @@
             border-radius: 7px;
         }
 
-        .status {
-            font-weight: bold;
-        }
+        .status { font-weight: bold; }
+        .sucesso { color: green; }
+        .erro { color: #b00020; }
 
-        .sucesso {
-            color: green;
-        }
-
-        .erro {
-            color: #b00020;
-        }
-
-        .fechar {
-            background: #8b0000;
-        }
-
-        .fechar:hover {
-            background: #a00000;
-        }
+        .fechar { background: #8b0000; }
+        .fechar:hover { background: #a00000; }
 
         #loginCriador {
             display: none;
@@ -147,9 +180,7 @@
             background: #fafafa;
         }
 
-        #loginCriador h2 {
-            margin-top: 0;
-        }
+        #loginCriador h2 { margin-top: 0; }
 
         #codigoCriador {
             width: 100%;
@@ -166,6 +197,11 @@
             color: #666;
             font-size: 13px;
         }
+
+        @media (max-width: 520px) {
+            .container { margin: 15px 10px; }
+            .botoes-foto { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 
@@ -173,60 +209,61 @@
 
 <header>
     <h1>duster-x</h1>
-    <p>Faça sua pergunta</p>
+    <p>Faça sua pergunta ou envie uma foto</p>
 </header>
-
 
 <div class="container">
 
-    <!-- RESPOSTA DA IA -->
-
     <div id="resposta">
-        Olá! Eu sou o Duster-X. Faça uma pergunta para começar.
+        Olá! Eu sou o Duster-X. Faça uma pergunta ou envie uma foto para começar.
     </div>
-
-
-    <!-- CAMPO DE PERGUNTA -->
 
     <textarea
         id="pergunta"
-        placeholder="Digite sua pergunta..."
+        placeholder="Digite sua pergunta ou diga o que quer fazer com a foto..."
     ></textarea>
 
+    <button id="falar">🎤 Falar</button>
 
-    <!-- BOTÃO DE VOZ -->
+    <div class="foto-area">
+        <h3>📷 Fotos e imagens</h3>
 
-    <button id="falar">
-        🎤 Falar
-    </button>
+        <input
+            type="file"
+            id="imagemInput"
+            accept="image/*"
+            capture="environment"
+        >
 
+        <div class="botoes-foto">
+            <button id="escolherFoto">📷 Enviar foto</button>
+            <button id="analisarFoto">🔎 Analisar foto</button>
+            <button id="criarImagem">🎨 Criar imagem</button>
+            <button id="editarFoto">♻️ Recriar/editar foto</button>
+        </div>
 
-    <!-- BOTÃO PERGUNTAR -->
+        <div id="previewContainer">
+            <img id="previewImagem" alt="Pré-visualização da foto">
+            <button id="removerFoto" class="remover-foto">🗑️ Remover foto</button>
+        </div>
+    </div>
 
-    <button id="perguntar">
-        Perguntar
-    </button>
+    <button id="perguntar">Perguntar</button>
 
+    <div id="imagemGeradaContainer">
+        <h3>🖼️ Imagem gerada</h3>
+        <img id="imagemGerada" alt="Imagem gerada pelo Duster-X">
+        <button id="baixarImagem" class="baixar">⬇️ Baixar imagem</button>
+    </div>
 
-    <!-- ACESSO DO CRIADOR -->
-
-    <button
-        id="abrirLogin"
-        class="criador-btn"
-    >
+    <button id="abrirLogin" class="criador-btn">
         🔐 Acesso do Criador
     </button>
 
-
-    <!-- LOGIN DO CRIADOR -->
-
     <div id="loginCriador">
-
         <h2>🔐 Acesso do Criador</h2>
 
-        <p>
-            Digite o código secreto do criador.
-        </p>
+        <p>Digite o código secreto do criador.</p>
 
         <input
             id="codigoCriador"
@@ -235,38 +272,19 @@
             autocomplete="off"
         >
 
-        <button id="entrarCriador">
-            Entrar no modo criador
-        </button>
+        <button id="entrarCriador">Entrar no modo criador</button>
 
-        <button
-            id="cancelarLogin"
-            class="fechar"
-        >
-            Cancelar
-        </button>
+        <button id="cancelarLogin" class="fechar">Cancelar</button>
 
         <div id="resultadoLogin"></div>
-
     </div>
 
-
-    <!-- PAINEL ADMINISTRATIVO -->
-
-    <div
-        id="painelAdmin"
-        class="painel"
-    >
-
+    <div id="painelAdmin" class="painel">
         <h2>🛠️ Painel Administrativo</h2>
-<button id="abrirBeta">
-    🧪 Abrir versão Beta com foto
-</button>
+
         <div class="painel-item">
             <strong>Usuário autenticado:</strong>
-            <span class="status sucesso">
-                Lucas Benjamin
-            </span>
+            <span class="status sucesso">Lucas Benjamin</span>
         </div>
 
         <div class="painel-item">
@@ -288,529 +306,472 @@
             <strong>IA:</strong>
             Gemini
         </div>
-<button id="abrirBeta">
-    🧪 Abrir versão Beta com foto
-</button>
-        <button id="fecharPainel">
-            🚪 Sair do modo criador
-        </button>
 
+        <button id="fecharPainel">🚪 Sair do modo criador</button>
     </div>
 
 </div>
-
 
 <footer>
     Duster-X • Criado por Lucas Benjamin
 </footer>
 
-
 <script>
+    const API_URL = "https://duster-x.lucasaasn.workers.dev";
 
-    /*
-    ============================================================
-    CONFIGURAÇÃO
-    ============================================================
-    */
+    const perguntaInput = document.getElementById("pergunta");
+    const respostaDiv = document.getElementById("resposta");
+    const perguntarButton = document.getElementById("perguntar");
+    const falarButton = document.getElementById("falar");
 
-    const API_URL =
-        "https://duster-x.lucasaasn.workers.dev";
+    const imagemInput = document.getElementById("imagemInput");
+    const escolherFoto = document.getElementById("escolherFoto");
+    const analisarFoto = document.getElementById("analisarFoto");
+    const criarImagem = document.getElementById("criarImagem");
+    const editarFoto = document.getElementById("editarFoto");
+    const removerFoto = document.getElementById("removerFoto");
 
+    const previewContainer = document.getElementById("previewContainer");
+    const previewImagem = document.getElementById("previewImagem");
 
-    /*
-    ============================================================
-    ELEMENTOS
-    ============================================================
-    */
+    const imagemGeradaContainer =
+        document.getElementById("imagemGeradaContainer");
+    const imagemGerada =
+        document.getElementById("imagemGerada");
+    const baixarImagem =
+        document.getElementById("baixarImagem");
 
-    const perguntaInput =
-        document.getElementById("pergunta");
-
-    const respostaDiv =
-        document.getElementById("resposta");
-
-    const perguntarButton =
-        document.getElementById("perguntar");
-
-    const falarButton =
-        document.getElementById("falar");
-
-    const abrirLogin =
-        document.getElementById("abrirLogin");
-
-    const loginCriador =
-        document.getElementById("loginCriador");
-
-    const codigoCriador =
-        document.getElementById("codigoCriador");
-
-    const entrarCriador =
-        document.getElementById("entrarCriador");
-
-    const cancelarLogin =
-        document.getElementById("cancelarLogin");
-
-    const resultadoLogin =
-        document.getElementById("resultadoLogin");
-
-    const painelAdmin =
-        document.getElementById("painelAdmin");
-
-    const fecharPainel =
-        document.getElementById("fecharPainel");const abrirBeta =
-    document.getElementById("abrirBeta");
-
-
-    /*
-    ============================================================
-    ESTADO DO CRIADOR
-    ============================================================
-    */
+    const abrirLogin = document.getElementById("abrirLogin");
+    const loginCriador = document.getElementById("loginCriador");
+    const codigoCriador = document.getElementById("codigoCriador");
+    const entrarCriador = document.getElementById("entrarCriador");
+    const cancelarLogin = document.getElementById("cancelarLogin");
+    const resultadoLogin = document.getElementById("resultadoLogin");
+    const painelAdmin = document.getElementById("painelAdmin");
+    const fecharPainel = document.getElementById("fecharPainel");
 
     let codigoAutenticado = null;
+    let imagemBase64 = null;
+    let imagemMimeType = "image/jpeg";
 
+    function mostrarResposta(texto) {
+        respostaDiv.textContent = texto || "A IA não retornou uma resposta.";
+    }
 
-    /*
-    ============================================================
-    PERGUNTAR PARA A IA
-    ============================================================
-    */
+    function limparImagemGerada() {
+        imagemGeradaContainer.style.display = "none";
+        imagemGerada.removeAttribute("src");
+    }
 
-    async function perguntar() {
+    function limparFoto() {
+        imagemBase64 = null;
+        imagemMimeType = "image/jpeg";
+        imagemInput.value = "";
+        previewImagem.removeAttribute("src");
+        previewContainer.style.display = "none";
+    }
 
-        const pergunta =
-            perguntaInput.value.trim();
+    function bloquearBotoes(valor) {
+        perguntarButton.disabled = valor;
+        analisarFoto.disabled = valor;
+        criarImagem.disabled = valor;
+        editarFoto.disabled = valor;
+    }
 
-        if (!pergunta) {
+    function obterCorpoBase(pergunta) {
+        const corpo = { pergunta };
 
-            respostaDiv.textContent =
-                "Digite uma pergunta primeiro.";
+        if (imagemBase64) {
+            corpo.imagem = imagemBase64;
+            corpo.mimeType = imagemMimeType;
+        }
 
+        if (codigoAutenticado) {
+            corpo.codigoCriador = codigoAutenticado;
+        }
+
+        return corpo;
+    }
+
+    escolherFoto.addEventListener("click", () => {
+        imagemInput.click();
+    });
+
+    imagemInput.addEventListener("change", () => {
+        const arquivo = imagemInput.files?.[0];
+
+        if (!arquivo) return;
+
+        if (!arquivo.type.startsWith("image/")) {
+            mostrarResposta("Escolha um arquivo de imagem.");
+            limparFoto();
             return;
         }
 
+        const leitor = new FileReader();
 
-        perguntarButton.disabled = true;
+        leitor.onload = () => {
+            const resultado = String(leitor.result || "");
+            const separador = resultado.indexOf(",");
 
-        respostaDiv.textContent =
-            "Pensando...";
-
-
-        try {
-
-            const corpo = {
-                pergunta: pergunta
-            };
-
-
-            /*
-            Se o usuário estiver autenticado
-            como criador, enviamos o código
-            para o servidor validar.
-            */
-
-            if (codigoAutenticado) {
-
-                corpo.codigoCriador =
-                    codigoAutenticado;
-            }
-
-
-            const response =
-                await fetch(API_URL, {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(corpo)
-                });
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.erro ||
-                    "Erro ao conectar com o servidor."
-                );
-            }
-
-
-            respostaDiv.textContent =
-                data.resposta ||
-                "A IA não retornou uma resposta.";
-
-        }
-
-        catch (erro) {
-
-            console.error(erro);
-
-            respostaDiv.textContent =
-                "Não consegui conectar com a IA.\n\n" +
-                "Erro: " +
-                erro.message;
-        }
-
-        finally {
-
-            perguntarButton.disabled =
-                false;
-        }
-    }
-
-
-    /*
-    ============================================================
-    BOTÃO PERGUNTAR
-    ============================================================
-    */
-
-    perguntarButton.addEventListener(
-        "click",
-        perguntar
-    );
-
-
-    /*
-    ============================================================
-    ENTER PARA PERGUNTAR
-    ============================================================
-    */
-
-    perguntaInput.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key === "Enter" &&
-                !event.shiftKey
-            ) {
-
-                event.preventDefault();
-
-                perguntar();
-            }
-        }
-    );
-
-
-    /*
-    ============================================================
-    ABRIR LOGIN
-    ============================================================
-    */
-
-    abrirLogin.addEventListener(
-        "click",
-        function() {
-
-            loginCriador.style.display =
-                "block";
-
-            painelAdmin.style.display =
-                "none";
-
-            resultadoLogin.textContent =
-                "";
-
-            codigoCriador.value =
-                "";
-
-            codigoCriador.focus();
-        }
-    );
-
-
-    /*
-    ============================================================
-    CANCELAR LOGIN
-    ============================================================
-    */
-
-    cancelarLogin.addEventListener(
-        "click",
-        function() {
-
-            loginCriador.style.display =
-                "none";
-
-            codigoCriador.value =
-                "";
-
-            resultadoLogin.textContent =
-                "";
-        }
-    );
-
-
-    /*
-    ============================================================
-    AUTENTICAR CRIADOR
-    ============================================================
-    */
-
-    entrarCriador.addEventListener(
-        "click",
-        async function() {
-
-            const codigo =
-                codigoCriador.value.trim();
-
-
-            if (!codigo) {
-
-                resultadoLogin.innerHTML =
-                    '<p class="erro">' +
-                    'Digite o código secreto.' +
-                    '</p>';
-
+            if (separador === -1) {
+                mostrarResposta("Não consegui ler a imagem.");
                 return;
             }
 
+            imagemMimeType = arquivo.type || "image/jpeg";
+            imagemBase64 = resultado.substring(separador + 1);
 
-            entrarCriador.disabled =
-                true;
+            previewImagem.src = resultado;
+            previewContainer.style.display = "block";
 
-            resultadoLogin.innerHTML =
-                "<p>Verificando...</p>";
+            mostrarResposta(
+                "📷 Foto carregada.\n\n" +
+                "Agora você pode analisar, criar uma imagem ou editar/recriar a foto."
+            );
+        };
 
+        leitor.onerror = () => {
+            mostrarResposta("Não consegui carregar a foto.");
+            limparFoto();
+        };
 
-            try {
+        leitor.readAsDataURL(arquivo);
+    });
 
-                /*
-                Fazemos uma pergunta interna
-                somente para o servidor verificar
-                o código.
-                */
+    removerFoto.addEventListener("click", () => {
+        limparFoto();
+        mostrarResposta("Foto removida.");
+    });
 
-                const response =
-                    await fetch(API_URL, {
+    async function enviarPergunta() {
+        const pergunta = perguntaInput.value.trim();
 
-                        method: "POST",
+        if (!pergunta) {
+            mostrarResposta("Digite uma pergunta primeiro.");
+            return;
+        }
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+        bloquearBotoes(true);
+        mostrarResposta("Pensando...");
 
-                        body: JSON.stringify({
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(obterCorpoBase(pergunta))
+            });
 
-                            pergunta:
-                                "Confirme minha autenticação de criador.",
+            const data = await response.json();
 
-                            codigoCriador:
-                                codigo
-
-                        })
-                    });
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.erro ||
-                        "Erro na autenticação."
-                    );
-                }
-
-
-                /*
-                O servidor é quem decide
-                se o código está correto.
-                */
-
-                if (
-                    data.modoCriador === true
-                ) {
-
-                    codigoAutenticado =
-                        codigo;
-
-
-                    loginCriador.style.display =
-                        "none";
-
-                    painelAdmin.style.display =
-                        "block";
-
-
-                    resultadoLogin.innerHTML =
-                        '<p class="sucesso">' +
-                        'Autenticação realizada.' +
-                        '</p>';
-
-
-                    respostaDiv.textContent =
-                        "🔐 Modo Criador ativado.\n\n" +
-                        "Olá, Lucas Benjamin!";
-
-                }
-
-                else {
-
-                    codigoAutenticado =
-                        null;
-
-                    resultadoLogin.innerHTML =
-                        '<p class="erro">' +
-                        'Código incorreto.' +
-                        '</p>';
-                }
-
+            if (!response.ok) {
+                throw new Error(
+                    data.erro || "Erro ao conectar com o servidor."
+                );
             }
 
-            catch (erro) {
+            mostrarResposta(data.resposta);
+        } catch (erro) {
+            console.error(erro);
+            mostrarResposta(
+                "Não consegui conectar com a IA.\n\nErro: " +
+                erro.message
+            );
+        } finally {
+            bloquearBotoes(false);
+        }
+    }
 
-                console.error(erro);
+    perguntarButton.addEventListener("click", enviarPergunta);
 
-                codigoAutenticado =
-                    null;
+    perguntaInput.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            enviarPergunta();
+        }
+    });
+
+    async function analisarFotoFunc() {
+        if (!imagemBase64) {
+            mostrarResposta("Envie uma foto primeiro.");
+            imagemInput.click();
+            return;
+        }
+
+        const pergunta =
+            perguntaInput.value.trim() ||
+            "Analise esta imagem cuidadosamente e explique o que aparece nela.";
+
+        bloquearBotoes(true);
+        mostrarResposta("🔎 Analisando a foto...");
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...obterCorpoBase(pergunta),
+                    pergunta
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.erro || "Erro ao analisar a imagem."
+                );
+            }
+
+            mostrarResposta(data.resposta);
+        } catch (erro) {
+            console.error(erro);
+            mostrarResposta(
+                "Não consegui analisar a foto.\n\nErro: " +
+                erro.message
+            );
+        } finally {
+            bloquearBotoes(false);
+        }
+    }
+
+    analisarFoto.addEventListener("click", analisarFotoFunc);
+
+    async function gerarImagem(acao, textoPadrao) {
+        const pergunta =
+            perguntaInput.value.trim() || textoPadrao;
+
+        if (!pergunta) {
+            mostrarResposta(
+                "Escreva o que você quer criar ou alterar."
+            );
+            perguntaInput.focus();
+            return;
+        }
+
+        if (acao === "recriar_foto" && !imagemBase64) {
+            mostrarResposta(
+                "Para recriar/editar uma foto, envie uma foto primeiro."
+            );
+            imagemInput.click();
+            return;
+        }
+
+        bloquearBotoes(true);
+        limparImagemGerada();
+        mostrarResposta("🎨 Criando sua imagem...");
+
+        try {
+            const corpo = {
+                acao,
+                pergunta,
+                codigoCriador: codigoAutenticado || ""
+            };
+
+            if (imagemBase64) {
+                corpo.imagem = imagemBase64;
+                corpo.mimeType = imagemMimeType;
+            }
+
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(corpo)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.erro || "Erro ao gerar a imagem."
+                );
+            }
+
+            if (
+                data.tipo !== "imagem" ||
+                !data.imagem
+            ) {
+                throw new Error(
+                    "A Gemini não retornou uma imagem válida."
+                );
+            }
+
+            const mime = data.mimeType || "image/png";
+            imagemGerada.src =
+                "data:" + mime + ";base64," + data.imagem;
+
+            imagemGeradaContainer.style.display = "block";
+
+            mostrarResposta(
+                "✅ Imagem criada com sucesso!"
+            );
+
+            imagemGeradaContainer.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        } catch (erro) {
+            console.error(erro);
+            mostrarResposta(
+                "Não consegui criar a imagem.\n\nErro: " +
+                erro.message
+            );
+        } finally {
+            bloquearBotoes(false);
+        }
+    }
+
+    criarImagem.addEventListener("click", () => {
+        gerarImagem(
+            "gerar_imagem",
+            "Crie uma imagem conforme a descrição."
+        );
+    });
+
+    editarFoto.addEventListener("click", () => {
+        gerarImagem(
+            "recriar_foto",
+            "Recrie ou edite esta foto mantendo os elementos principais."
+        );
+    });
+
+    baixarImagem.addEventListener("click", () => {
+        if (!imagemGerada.src) return;
+
+        const link = document.createElement("a");
+        link.href = imagemGerada.src;
+        link.download = "duster-x-imagem.png";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    });
+
+    abrirLogin.addEventListener("click", function() {
+        loginCriador.style.display = "block";
+        painelAdmin.style.display = "none";
+        resultadoLogin.textContent = "";
+        codigoCriador.value = "";
+        codigoCriador.focus();
+    });
+
+    cancelarLogin.addEventListener("click", function() {
+        loginCriador.style.display = "none";
+        codigoCriador.value = "";
+        resultadoLogin.textContent = "";
+    });
+
+    entrarCriador.addEventListener("click", async function() {
+        const codigo = codigoCriador.value.trim();
+
+        if (!codigo) {
+            resultadoLogin.innerHTML =
+                '<p class="erro">Digite o código secreto.</p>';
+            return;
+        }
+
+        entrarCriador.disabled = true;
+        resultadoLogin.innerHTML = "<p>Verificando...</p>";
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    acao: "autenticar_criador",
+                    codigoCriador: codigo
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.erro || "Erro na autenticação."
+                );
+            }
+
+            if (data.modoCriador === true) {
+                codigoAutenticado = codigo;
+
+                loginCriador.style.display = "none";
+                painelAdmin.style.display = "block";
 
                 resultadoLogin.innerHTML =
-                    '<p class="erro">' +
-                    'Não foi possível verificar o código.<br><br>' +
-                    erro.message +
-                    '</p>';
+                    '<p class="sucesso">Autenticação realizada.</p>';
 
+                mostrarResposta(
+                    "🔐 Modo Criador ativado.\n\nOlá, Lucas Benjamin!"
+                );
+            } else {
+                codigoAutenticado = null;
+
+                resultadoLogin.innerHTML =
+                    '<p class="erro">Código incorreto.</p>';
             }
+        } catch (erro) {
+            console.error(erro);
+            codigoAutenticado = null;
 
-            finally {
-
-                entrarCriador.disabled =
-                    false;
-            }
-
+            resultadoLogin.innerHTML =
+                '<p class="erro">' +
+                "Não foi possível verificar o código.<br><br>" +
+                erro.message +
+                "</p>";
+        } finally {
+            entrarCriador.disabled = false;
         }
-    );
+    });
 
-
-    /*
-    ============================================================
-    SAIR DO MODO CRIADOR
-    ============================================================
-    */
-
-    fecharPainel.addEventListener(
-        "click",
-        function() {
-
-            codigoAutenticado =
-                null;
-
-            painelAdmin.style.display =
-                "none";
-
-            respostaDiv.textContent =
-                "🔓 Modo Criador encerrado.";
-
-            codigoCriador.value =
-                "";
-        }
-    );
-
-
-    /*
-    ============================================================
-    RECONHECIMENTO DE VOZ
-    ============================================================
-    */
+    fecharPainel.addEventListener("click", function() {
+        codigoAutenticado = null;
+        painelAdmin.style.display = "none";
+        mostrarResposta("🔓 Modo Criador encerrado.");
+        codigoCriador.value = "";
+    });
 
     const SpeechRecognition =
         window.SpeechRecognition ||
         window.webkitSpeechRecognition;
 
-
     if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
 
-        const recognition =
-            new SpeechRecognition();
+        recognition.lang = "pt-BR";
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
+        falarButton.addEventListener("click", function() {
+            recognition.start();
+        });
 
-        recognition.lang =
-            "pt-BR";
+        recognition.onstart = function() {
+            falarButton.textContent = "🎤 Ouvindo...";
+            falarButton.disabled = true;
+        };
 
+        recognition.onresult = function(event) {
+            const texto =
+                event.results[0][0].transcript;
 
-        recognition.continuous =
-            false;
+            perguntaInput.value = texto;
+        };
 
+        recognition.onend = function() {
+            falarButton.textContent = "🎤 Falar";
+            falarButton.disabled = false;
+        };
 
-        recognition.interimResults =
-            false;
-
-
-        falarButton.addEventListener(
-            "click",
-            function() {
-
-                recognition.start();
-
-            }
-        );
-
-
-        recognition.onstart =
-            function() {
-
-                falarButton.textContent =
-                    "🎤 Ouvindo...";
-
-            };
-
-
-        recognition.onresult =
-            function(event) {
-
-                const texto =
-                    event.results[0][0]
-                        .transcript;
-
-                perguntaInput.value =
-                    texto;
-
-            };
-
-
-        recognition.onend =
-            function() {
-
-                falarButton.textContent =
-                    "🎤 Falar";
-
-            };
-
-
-        recognition.onerror =
-            function() {
-
-                falarButton.textContent =
-                    "🎤 Falar";
-
-            };
-
-    }
-
-    else {
-
-        falarButton.disabled =
-            true;
-
+        recognition.onerror = function() {
+            falarButton.textContent = "🎤 Falar";
+            falarButton.disabled = false;
+        };
+    } else {
+        falarButton.disabled = true;
         falarButton.textContent =
             "🎤 Voz não suportada neste navegador";
     }
-
 </script>
 
 </body>
