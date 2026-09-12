@@ -6,203 +6,60 @@
     <title>Duster-X</title>
 
     <style>
-        * { box-sizing: border-box; }
+.acoes-principais{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important;gap:10px;margin-top:10px;width:100%}
+.acoes-principais button{flex:1 1 0 !important;width:50% !important;margin:0 !important;display:block !important}
+.acoes-principais #falar,.acoes-principais #perguntar{margin:0}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            color: #111;
-        }
+:root{--bg:#212121;--panel:#171717;--panel2:#2f2f2f;--text:#ececec;--muted:#a9a9a9;--border:#3d3d3d;--accent:#10a37f}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+body{min-height:100vh;display:flex;flex-direction:column}
+header{position:sticky;top:0;z-index:20;height:58px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--border);background:rgba(33,33,33,.96);backdrop-filter:blur(10px)}
+header h1{font-size:18px;margin:0;font-weight:700}header p{display:none}
+.container{width:min(900px,100%);margin:0 auto;padding:28px 18px 150px;flex:1}
+#resposta{white-space:pre-wrap;line-height:1.65;font-size:16px;min-height:160px;padding:24px 0;color:var(--text)}
+#pergunta{width:100%;min-height:58px;max-height:180px;resize:vertical;border:1px solid var(--border);border-radius:16px;background:var(--panel2);color:var(--text);padding:17px 18px;font-size:16px;outline:none}
+#pergunta:focus{border-color:#666}
+button{border:0;border-radius:10px;padding:11px 15px;font-size:14px;font-weight:600;cursor:pointer;background:#3a3a3a;color:white;transition:.15s}
+button:hover{background:#4a4a4a}button:disabled{opacity:.45;cursor:not-allowed}
+#perguntar{background:var(--accent);margin-top:10px}#perguntar:hover{background:#0d8c6d}
+#falar{margin:10px 0}
+.foto-area{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}
+.foto-area h3{margin:0 0 12px;font-size:15px}#imagemInput{display:none}
+.botoes-foto{display:flex;flex-wrap:wrap;gap:8px}
+#previewContainer{display:none;margin-top:14px;text-align:center;padding:12px;border:1px solid var(--border);border-radius:12px}
+#previewImagem{max-width:100%;max-height:360px;border-radius:10px}.remover-foto{margin-top:10px;background:#5a3030}
+#imagemGeradaContainer{display:none;margin-top:20px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}
+#imagemGerada{display:block;max-width:100%;max-height:600px;margin:auto;border-radius:10px}.baixar{margin-top:10px}
+#falar{margin:10px 0}
+.criador-btn{display:block;width:100%;margin-top:28px;padding:12px;background:#292929;border:1px solid var(--border)}
+.criador-btn:hover{background:#363636}.painel,#loginCriador{display:none;margin-top:18px;padding:18px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}
+.painel h2,#loginCriador h2{margin-top:0}.painel-item{padding:12px;margin-bottom:10px;background:#242424;border:1px solid var(--border);border-radius:9px}
+.status{font-weight:bold}.sucesso{color:#42d3a4}.erro{color:#ff7b7b}
+#codigoCriador{width:100%;padding:13px;border:1px solid var(--border);border-radius:9px;background:#2b2b2b;color:white;font-size:16px;margin-bottom:10px}
+.fechar{background:#6b3030}footer{padding:18px;text-align:center;color:#777;font-size:12px}
+.chat-label{font-size:13px;font-weight:700;color:#aaa;margin-bottom:4px}
+@media(max-width:600px){.acoes-principais{display:flex !important;flex-direction:row !important;flex-wrap:nowrap !important}.acoes-principais button{flex:1 1 0 !important;width:50% !important}.container{padding:20px 12px 140px}#resposta{font-size:15px}.botoes-foto button{flex:1 1 100%}}
+</style>
 
-        header {
-            background: #222;
-            color: white;
-            text-align: center;
-            padding: 35px 20px;
-        }
+<style id="botoes-lado-a-lado">
+.acoes-principais {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+}
+.acoes-principais #falar,
+.acoes-principais #perguntar {
+  display: block !important;
+  flex: 1 1 50% !important;
+  width: 50% !important;
+  margin: 0 !important;
+}
+</style>
 
-        header h1 { margin: 0; font-size: 30px; }
-        header p { margin: 8px 0 0; font-size: 16px; }
-
-        .container {
-            max-width: 700px;
-            margin: 30px auto;
-            background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-
-        textarea {
-            width: 100%;
-            resize: vertical;
-            min-height: 90px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: Arial, sans-serif;
-            margin-bottom: 12px;
-        }
-
-        #resposta {
-            width: 100%;
-            min-height: 180px;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-        }
-
-        button {
-            width: 100%;
-            border: none;
-            background: #222;
-            color: white;
-            padding: 13px;
-            border-radius: 7px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 10px;
-        }
-
-        button:hover { background: #333; }
-        button:disabled { background: #888; cursor: not-allowed; }
-
-        .foto-area {
-            margin: 10px 0 14px;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background: #fafafa;
-        }
-
-        .foto-area h3 { margin: 0 0 10px; }
-
-        .botoes-foto {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .botoes-foto button { margin-bottom: 0; }
-
-        #imagemInput { display: none; }
-
-        #previewContainer {
-            display: none;
-            margin-top: 12px;
-            text-align: center;
-        }
-
-        #previewImagem {
-            max-width: 100%;
-            max-height: 320px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .remover-foto {
-            background: #8b0000;
-            margin-top: 8px;
-        }
-
-        .remover-foto:hover { background: #a00000; }
-
-        #imagemGeradaContainer {
-            display: none;
-            margin-top: 16px;
-            padding: 14px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background: #fafafa;
-        }
-
-        #imagemGeradaContainer h3 { margin-top: 0; }
-
-        #imagemGerada {
-            display: block;
-            width: 100%;
-            max-height: 650px;
-            object-fit: contain;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            background: white;
-        }
-
-        .baixar {
-            margin-top: 10px;
-            background: #444;
-        }
-
-        .criador-btn {
-            background: #555;
-            margin-top: 5px;
-        }
-
-        .criador-btn:hover { background: #444; }
-
-        .painel {
-            display: none;
-            margin-top: 20px;
-            padding: 18px;
-            border: 2px solid #222;
-            border-radius: 10px;
-            background: #fafafa;
-        }
-
-        .painel h2 { margin-top: 0; }
-
-        .painel-item {
-            padding: 12px;
-            margin-bottom: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 7px;
-        }
-
-        .status { font-weight: bold; }
-        .sucesso { color: green; }
-        .erro { color: #b00020; }
-
-        .fechar { background: #8b0000; }
-        .fechar:hover { background: #a00000; }
-
-        #loginCriador {
-            display: none;
-            margin-top: 20px;
-            padding: 18px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background: #fafafa;
-        }
-
-        #loginCriador h2 { margin-top: 0; }
-
-        #codigoCriador {
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #ccc;
-            border-radius: 7px;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 13px;
-        }
-
-        @media (max-width: 520px) {
-            .container { margin: 15px 10px; }
-            .botoes-foto { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
 
 <body>
@@ -214,6 +71,7 @@
 
 <div class="container">
 
+    <div class="chat-label">🤖 Duster-X</div>
     <div id="resposta">
         Olá! Eu sou o Duster-X. Faça uma pergunta ou envie uma foto para começar.
     </div>
