@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleDisplayName</key><string>Duster-X</string>
+<key>CFBundleName</key><string>Duster-X</string>
+<key>CFBundleIdentifier</key><string>com.lucasbenjamin.dusterx</string>
+<key>CFBundleShortVersionString</key><string>1.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>NSCameraUsageDescription</key><string>O Duster-X usa a câmera para analisar fotos.</string>
+<key>NSMicrophoneUsageDescription</key><string>O Duster-X usa o microfone para a função Falar.</string>
+<key>NSPhotoLibraryUsageDescription</key><string>O Duster-X acessa fotos quando você escolhe enviar uma imagem.</string>
+</dict></plist>
